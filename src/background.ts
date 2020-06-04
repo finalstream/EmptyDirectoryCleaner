@@ -1,10 +1,12 @@
 "use strict";
 
-import { app, protocol, BrowserWindow } from "electron";
+import { app, protocol, BrowserWindow, ipcMain, dialog } from "electron";
 import {
-  createProtocol
+  createProtocol,
   /* installVueDevtools */
 } from "vue-cli-plugin-electron-builder/lib";
+import AppStore from "./models/AppStore";
+import fs from "fs";
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -13,20 +15,26 @@ let win: BrowserWindow | null;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
-  { scheme: "app", privileges: { secure: true, standard: true } }
+  { scheme: "app", privileges: { secure: true, standard: true } },
 ]);
 
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
+    x: AppStore.instance.get("window.x"),
+    y: AppStore.instance.get("window.y"),
     width: 800,
     height: 600,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-      nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION
-    }
+      //nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
+      nodeIntegration: true,
+    },
   });
+
+  win.setTitle("Empty Directory Cleaner");
+  win.setMenuBarVisibility(false); // menuバー消す
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
@@ -37,6 +45,13 @@ function createWindow() {
     // Load the index.html when not in development
     win.loadURL("app://./index.html");
   }
+
+  win.on("close", () => {
+    AppStore.instance.set("window.x", win!.getPosition()[0]);
+    AppStore.instance.set("window.y", win!.getPosition()[1]);
+    AppStore.instance.set("window.height", win!.getSize()[1]);
+    AppStore.instance.set("window.width", win!.getSize()[0]);
+  });
 
   win.on("closed", () => {
     win = null;
@@ -94,3 +109,31 @@ if (isDevelopment) {
     });
   }
 }
+
+ipcMain.handle("setStore", (event, data) => {
+  AppStore.instance.set(data);
+});
+
+ipcMain.handle("getStore", (event, key) => {
+  console.log("invode!:" + key);
+  return AppStore.instance.get(key);
+});
+
+ipcMain.handle("openDialogDirectory", async (event, data) => {
+  return await dialog
+    .showOpenDialog(win!, {
+      properties: ["openDirectory"],
+    })
+    .then(ret => {
+      return ret.filePaths[0];
+    });
+});
+
+ipcMain.handle("searchDirectory", async (event, dirpath) => {
+  // 検索時にパスを保存
+  AppStore.instance.set("searchDirectory", dirpath);
+
+  return await fs.promises.readdir(dirpath, { withFileTypes: true }).then(files => {
+    return files;
+  });
+});
