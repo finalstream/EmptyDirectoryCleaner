@@ -67,12 +67,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 
 // @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
 import MainData from "../models/MainData";
-import AppStore from "../models/AppStore";
 import electron from "electron";
 
 @Component
@@ -103,28 +101,45 @@ export default class AppMain extends Vue {
     });
   }
 
-  async search() {
+  search() {
     console.log("search!" + this.mainData.searchDirectory);
     //new Store().set("mainData", this.mainData.searchDir);
     this.isLoading = true;
     this.mainData.clearDirectories();
-    await this.ipcRenderer
-      .invoke("searchDirectory", this.mainData.searchDirectory)
-      .then(directories => {
-        this.mainData.updateDirectories(directories);
-        this.isAllSelected = true;
-        this.isLoading = false;
-      });
+    this.ipcRenderer.invoke("searchDirectory", this.mainData.searchDirectory).then(directories => {
+      this.mainData.updateDirectories(directories);
+      this.isAllSelected = true;
+      this.isLoading = false;
+    });
   }
 
-  async selectDir() {
-    await this.ipcRenderer.invoke("openDialogDirectory").then(path => {
+  selectDir() {
+    this.ipcRenderer.invoke("openDialogDirectory").then(path => {
       if (path != "") this.mainData.searchDirectory = path;
     });
   }
 
-  async deleteDirectory() {
+  deleteDirectory() {
     this.isVisibleConfirmDialog = false;
+    this.isLoading = true;
+    this.ipcRenderer
+      .invoke(
+        "deleteDirectory",
+        this.mainData.searchDirectory,
+        this.mainData.directories.filter(d => d.isSelected).map(d => d.name)
+      )
+      .then((deleteDirectories: string[]) => {
+        // 一致したものを削除
+        this.mainData.directories = this.mainData.directories.filter(
+          d => !deleteDirectories.includes(d.name)
+        );
+
+        this.$message({
+          type: "success",
+          message: "Delete completed",
+        });
+        this.isLoading = false;
+      });
   }
 
   @Watch("isAllSelected")

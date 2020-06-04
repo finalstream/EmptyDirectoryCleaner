@@ -6,8 +6,9 @@ import {
   /* installVueDevtools */
 } from "vue-cli-plugin-electron-builder/lib";
 import AppStore from "./models/AppStore";
-import fs from "fs";
+import fs, { Dirent } from "fs";
 import path from "path";
+import trash from "trash";
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -120,8 +121,8 @@ ipcMain.handle("getStore", (event, key) => {
   return AppStore.instance.get(key);
 });
 
-ipcMain.handle("openDialogDirectory", async (event, data) => {
-  return await dialog
+ipcMain.handle("openDialogDirectory", (event, data) => {
+  return dialog
     .showOpenDialog(win!, {
       properties: ["openDirectory"],
     })
@@ -130,16 +131,29 @@ ipcMain.handle("openDialogDirectory", async (event, data) => {
     });
 });
 
-ipcMain.handle("searchDirectory", async (event, dirpath) => {
+ipcMain.handle("searchDirectory", (event, dirpath) => {
   // 検索時にパスを保存
   AppStore.instance.set("searchDirectory", dirpath);
 
-  return await fs.promises.readdir(dirpath, { withFileTypes: true }).then(dirents => {
+  return fs.promises.readdir(dirpath, { withFileTypes: true }).then(dirents => {
     return dirents.filter(dirent => {
       if (!dirent.isDirectory()) return false;
       const filepath = path.join(dirpath, dirent.name);
       const files = fs.readdirSync(filepath);
       return files.length == 0;
     });
+  });
+});
+
+ipcMain.handle("deleteDirectory", (event, dirPath, directories: string[]) => {
+  return directories.filter(d => {
+    const dirfullpath = path.join(dirPath, d);
+    return trash(dirfullpath)
+      .then(() => {
+        return true;
+      })
+      .catch(() => {
+        return false;
+      });
   });
 });
