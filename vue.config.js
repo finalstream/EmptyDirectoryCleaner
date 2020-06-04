@@ -6,6 +6,13 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       nodeIntegration: true,
+      builderOptions: {
+        appId: "net.finalstream.emptydirectorycleaner",
+        productName: "Empty Directory Cleaner",
+        win: {
+          icon: "./edc.png",
+        },
+      },
     },
   },
 };

@@ -15,6 +15,7 @@
         style="margin-top:10px;width:100%"
         @click="search()"
         v-loading.fullscreen.lock="isLoading"
+        :disabled="disabledSearch"
         >Search</el-button
       >
     </div>
@@ -39,7 +40,7 @@
     </div>
     <el-button
       :type="deleteButtonType"
-      style="margin-top:20px;width:100%"
+      style="margin-top:15px;width:100%"
       @click="isVisibleConfirmDialog = true"
       v-loading.fullscreen.lock="isLoading"
       :disabled="disabledDelete"
@@ -101,6 +102,10 @@ export default class AppMain extends Vue {
     });
   }
 
+  mounted() {
+    this.ipcRenderer.invoke("ready");
+  }
+
   search() {
     console.log("search!" + this.mainData.searchDirectory);
     //new Store().set("mainData", this.mainData.searchDir);
@@ -122,6 +127,7 @@ export default class AppMain extends Vue {
   deleteDirectory() {
     this.isVisibleConfirmDialog = false;
     this.isLoading = true;
+
     this.ipcRenderer
       .invoke(
         "deleteDirectory",
@@ -133,8 +139,9 @@ export default class AppMain extends Vue {
         this.mainData.directories = this.mainData.directories.filter(
           d => !deleteDirectories.includes(d.name)
         );
-
-        this.$message({
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const t: any = this;
+        t.$message({
           type: "success",
           message: "Delete completed",
         });
@@ -163,6 +170,10 @@ export default class AppMain extends Vue {
 
   get deleteButtonType() {
     return this.mainData.directories.filter(d => d.isSelected).length == 0 ? "info" : "warning";
+  }
+
+  get disabledSearch() {
+    return this.mainData.searchDirectory == "";
   }
 }
 </script>

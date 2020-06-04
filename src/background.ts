@@ -3,6 +3,7 @@
 import { app, protocol, BrowserWindow, ipcMain, dialog } from "electron";
 import {
   createProtocol,
+  installVueDevtools,
   /* installVueDevtools */
 } from "vue-cli-plugin-electron-builder/lib";
 import AppStore from "./models/AppStore";
@@ -33,10 +34,8 @@ function createWindow() {
       //nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
       nodeIntegration: true,
     },
+    title: "Empty Directory Cleaner",
   });
-
-  win.setTitle("Empty Directory Cleaner");
-  win.setMenuBarVisibility(false); // menuバー消す
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
@@ -58,6 +57,8 @@ function createWindow() {
   win.on("closed", () => {
     win = null;
   });
+
+  win.setMenuBarVisibility(false); // menuバー消す
 }
 
 // Quit when all windows are closed.
@@ -88,11 +89,11 @@ app.on("ready", async () => {
     // Electron will not launch with Devtools extensions installed on Windows 10 with dark mode
     // If you are not using Windows 10 dark mode, you may uncomment these lines
     // In addition, if the linked issue is closed, you can upgrade electron and uncomment these lines
-    // try {
-    //   await installVueDevtools()
-    // } catch (e) {
-    //   console.error('Vue Devtools failed to install:', e.toString())
-    // }
+    try {
+      await installVueDevtools();
+    } catch (e) {
+      console.error("Vue Devtools failed to install:", e.toString());
+    }
   }
   createWindow();
 });
@@ -111,6 +112,11 @@ if (isDevelopment) {
     });
   }
 }
+
+ipcMain.handle("ready", (event, data) => {
+  // なんか上書きされるのでここで再設定
+  win!.setTitle("Empty Directory Cleaner");
+});
 
 ipcMain.handle("setStore", (event, data) => {
   AppStore.instance.set(data);

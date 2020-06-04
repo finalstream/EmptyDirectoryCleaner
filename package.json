@@ -1,6 +1,7 @@
 {
-  "name": "edc",
+  "name": "emptydirectorycleaner",
   "version": "0.1.0",
+  "author": "FINALSTREAM",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
