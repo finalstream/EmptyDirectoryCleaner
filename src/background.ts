@@ -7,6 +7,7 @@ import {
 } from "vue-cli-plugin-electron-builder/lib";
 import AppStore from "./models/AppStore";
 import fs from "fs";
+import path from "path";
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -133,7 +134,12 @@ ipcMain.handle("searchDirectory", async (event, dirpath) => {
   // 検索時にパスを保存
   AppStore.instance.set("searchDirectory", dirpath);
 
-  return await fs.promises.readdir(dirpath, { withFileTypes: true }).then(files => {
-    return files;
+  return await fs.promises.readdir(dirpath, { withFileTypes: true }).then(dirents => {
+    return dirents.filter(dirent => {
+      if (!dirent.isDirectory()) return false;
+      const filepath = path.join(dirpath, dirent.name);
+      const files = fs.readdirSync(filepath);
+      return files.length == 0;
+    });
   });
 });

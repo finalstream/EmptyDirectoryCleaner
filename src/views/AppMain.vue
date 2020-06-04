@@ -19,11 +19,32 @@
       >
     </div>
     <div>
-      <el-table :data="mainData.directories" style="width: 100%" empty-text=" ">
-        <el-table-column prop="name" />
+      <el-table
+        :data="mainData.directories"
+        style="margin-top:20px;width: 100%;height: calc(100vh - 225px); overflow: auto;"
+        empty-text=" "
+      >
+        <el-table-column width="50">
+          <template slot="header" slot-scope="{}"
+            ><!-- eslint-disable-line -->
+            <el-checkbox v-model="isAllSelected" />
+          </template>
+          <template slot-scope="props">
+            <el-checkbox v-model="props.row.isSelected" />
+          </template>
+        </el-table-column>
+
+        <el-table-column label="name" prop="name" />
       </el-table>
     </div>
-
+    <el-button
+      :type="deleteButtonType"
+      style="margin-top:20px;width:100%"
+      @click="search()"
+      v-loading.fullscreen.lock="isLoading"
+      :disabled="disabledDelete"
+      >Delete Selected {{ this.selectItemsCount }} items</el-button
+    >
     <!--
     <el-row type="flex">
       <el-col><el-input prefix-icon="el-icon-date" v-model="input1"/></el-col>
@@ -34,7 +55,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 // @ is an alias to /src
 import HelloWorld from "@/components/HelloWorld.vue";
@@ -46,6 +67,7 @@ import electron from "electron";
 export default class AppMain extends Vue {
   mainData: MainData;
   isLoading: boolean;
+  isAllSelected: boolean;
 
   private ipcRenderer = electron.ipcRenderer;
 
@@ -56,6 +78,7 @@ export default class AppMain extends Vue {
     super();
     this.mainData = new MainData();
     this.isLoading = false;
+    this.isAllSelected = true;
   }
 
   created() {
@@ -75,6 +98,7 @@ export default class AppMain extends Vue {
       .invoke("searchDirectory", this.mainData.searchDirectory)
       .then(directories => {
         this.mainData.updateDirectories(directories);
+        this.isAllSelected = true;
         this.isLoading = false;
       });
   }
@@ -83,6 +107,29 @@ export default class AppMain extends Vue {
     await this.ipcRenderer.invoke("openDialogDirectory").then(path => {
       if (path != "") this.mainData.searchDirectory = path;
     });
+  }
+
+  @Watch("isAllSelected")
+  onChangeIsAllSelected() {
+    let selected = false;
+    if (this.isAllSelected) {
+      selected = true;
+    }
+    this.mainData.directories.forEach(d => {
+      d.isSelected = selected;
+    });
+  }
+
+  get selectItemsCount() {
+    return this.mainData.directories.filter(d => d.isSelected).length;
+  }
+
+  get disabledDelete() {
+    return this.mainData.directories.filter(d => d.isSelected).length == 0;
+  }
+
+  get deleteButtonType() {
+    return this.mainData.directories.filter(d => d.isSelected).length == 0 ? "info" : "danger";
   }
 }
 </script>

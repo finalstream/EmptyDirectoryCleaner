@@ -1,3 +1,6 @@
+import RowDirectory from "./RowDirectory";
+import { Dirent } from "fs";
+
 export default class MainData {
   constructor() {
     this._searchDirectory = "";
@@ -15,17 +18,17 @@ export default class MainData {
     this._searchDirectory = v;
   }
 
-  private _directories: string[];
-  public get directories(): string[] {
+  private _directories: RowDirectory[];
+  public get directories(): RowDirectory[] {
     return this._directories;
   }
-  public set directories(v: string[]) {
+  public set directories(v: RowDirectory[]) {
     this._directories = v;
   }
 
-  public updateDirectories(directories: string[]) {
+  public updateDirectories(directories: Dirent[]) {
     directories.forEach(directory => {
-      this.directories.push(directory);
+      this.directories.push(new RowDirectory(directory.name));
     });
   }
 
