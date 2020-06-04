@@ -40,7 +40,7 @@
     <el-button
       :type="deleteButtonType"
       style="margin-top:20px;width:100%"
-      @click="search()"
+      @click="isVisibleConfirmDialog = true"
       v-loading.fullscreen.lock="isLoading"
       :disabled="disabledDelete"
       >Delete Selected {{ this.selectItemsCount }} items</el-button
@@ -51,6 +51,18 @@
       <el-col><el-button>参照</el-button></el-col>
     </el-row>
     -->
+    <el-dialog title="" :visible.sync="isVisibleConfirmDialog" width="60%" center>
+      <template slot="title"
+        ><i class="el-icon-warning-outline" style="color:#f56c6c"></i>
+        <span style="color:#f56c6c"> Warning</span></template
+      >
+      <span>Are you sure you want to delete the selected empty directory?</span><br />
+      <span>The deleted directory will be moved to the trash.</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="danger" @click="deleteDirectory()">Yes</el-button>
+        <el-button style="margin-left:50px" @click="isVisibleConfirmDialog = false">No</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -68,6 +80,7 @@ export default class AppMain extends Vue {
   mainData: MainData;
   isLoading: boolean;
   isAllSelected: boolean;
+  isVisibleConfirmDialog: boolean;
 
   private ipcRenderer = electron.ipcRenderer;
 
@@ -79,6 +92,7 @@ export default class AppMain extends Vue {
     this.mainData = new MainData();
     this.isLoading = false;
     this.isAllSelected = true;
+    this.isVisibleConfirmDialog = false;
   }
 
   created() {
@@ -109,6 +123,10 @@ export default class AppMain extends Vue {
     });
   }
 
+  async deleteDirectory() {
+    this.isVisibleConfirmDialog = false;
+  }
+
   @Watch("isAllSelected")
   onChangeIsAllSelected() {
     let selected = false;
@@ -129,7 +147,7 @@ export default class AppMain extends Vue {
   }
 
   get deleteButtonType() {
-    return this.mainData.directories.filter(d => d.isSelected).length == 0 ? "info" : "danger";
+    return this.mainData.directories.filter(d => d.isSelected).length == 0 ? "info" : "warning";
   }
 }
 </script>
