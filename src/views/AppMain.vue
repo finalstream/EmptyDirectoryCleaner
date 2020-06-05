@@ -15,7 +15,7 @@
         style="margin-top:10px;width:100%"
         @click="search()"
         v-loading.fullscreen.lock="isLoading"
-        :disabled="disabledSearch"
+        :disabled="disabledSearchButton"
         >Search</el-button
       >
     </div>
@@ -43,8 +43,8 @@
       style="margin-top:15px;width:100%"
       @click="isVisibleConfirmDialog = true"
       v-loading.fullscreen.lock="isLoading"
-      :disabled="disabledDelete"
-      >Delete Selected {{ this.selectItemsCount }} items</el-button
+      :disabled="disabledDeleteButton"
+      >Delete Selected {{ this.selectItemsCount }} directories</el-button
     >
     <!--
     <el-row type="flex">
@@ -123,8 +123,9 @@ export default class AppMain extends Vue {
   }
 
   selectDir() {
-    this.ipcRenderer.invoke("openDialogDirectory").then(path => {
-      if (path != "") this.mainData.searchDirectory = path;
+    this.ipcRenderer.invoke("openDialogDirectory").then((path: string) => {
+      if (path == undefined) return;
+      this.mainData.searchDirectory = path;
     });
   }
 
@@ -175,7 +176,7 @@ export default class AppMain extends Vue {
     return this.mainData.directories.filter(d => d.isSelected).length;
   }
 
-  get disabledDelete() {
+  get disabledDeleteButton() {
     return this.mainData.directories.filter(d => d.isSelected).length == 0;
   }
 
@@ -183,7 +184,7 @@ export default class AppMain extends Vue {
     return this.mainData.directories.filter(d => d.isSelected).length == 0 ? "info" : "warning";
   }
 
-  get disabledSearch() {
+  get disabledSearchButton() {
     return this.mainData.searchDirectory == "";
   }
 }
