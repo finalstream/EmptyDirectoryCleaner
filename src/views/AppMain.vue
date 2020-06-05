@@ -189,3 +189,8 @@ export default class AppMain extends Vue {
   }
 }
 </script>
+<style>
+.el-loading-mask {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+</style>
