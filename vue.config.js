@@ -10,7 +10,7 @@ module.exports = {
         appId: "net.finalstream.emptydirectorycleaner",
         productName: "Empty Directory Cleaner",
         win: {
-          icon: "./edc.png",
+          icon: "./src/assets/icon.png",
         },
       },
     },
