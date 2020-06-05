@@ -26,12 +26,12 @@
         empty-text=" "
       >
         <el-table-column width="50">
-          <template slot="header" slot-scope="{}"
-            ><!-- eslint-disable-line -->
-            <el-checkbox v-model="isAllSelected" />
+          <template slot="header" slot-scope="{}">
+            <!-- eslint-disable-line -->
+            <el-checkbox v-model="isAllSelected" :indeterminate="isIndeterminateCheckbox" />
           </template>
           <template slot-scope="props">
-            <el-checkbox v-model="props.row.isSelected" />
+            <el-checkbox v-model="props.row.isSelected" @change="checkChanged()" />
           </template>
         </el-table-column>
 
@@ -52,12 +52,13 @@
       <el-col><el-button>参照</el-button></el-col>
     </el-row>
     -->
-    <el-dialog title="" :visible.sync="isVisibleConfirmDialog" width="60%" center>
-      <template slot="title"
-        ><i class="el-icon-warning-outline" style="color:#f56c6c"></i>
-        <span style="color:#f56c6c"> Warning</span></template
-      >
-      <span>Are you sure you want to delete the selected empty directory?</span><br />
+    <el-dialog title :visible.sync="isVisibleConfirmDialog" width="60%" center>
+      <template slot="title">
+        <i class="el-icon-warning-outline" style="color:#f56c6c"></i>
+        <span style="color:#f56c6c">Warning</span>
+      </template>
+      <span>Are you sure you want to delete the selected empty directory?</span>
+      <br />
       <span>The deleted directory will be moved to the trash.</span>
       <span slot="footer" class="dialog-footer">
         <el-button type="danger" @click="deleteDirectory()">Yes</el-button>
@@ -80,6 +81,7 @@ export default class AppMain extends Vue {
   isLoading: boolean;
   isAllSelected: boolean;
   isVisibleConfirmDialog: boolean;
+  isIndeterminateCheckbox: boolean;
 
   private ipcRenderer = electron.ipcRenderer;
 
@@ -92,6 +94,7 @@ export default class AppMain extends Vue {
     this.isLoading = false;
     this.isAllSelected = true;
     this.isVisibleConfirmDialog = false;
+    this.isIndeterminateCheckbox = false;
   }
 
   created() {
@@ -114,6 +117,7 @@ export default class AppMain extends Vue {
     this.ipcRenderer.invoke("searchDirectory", this.mainData.searchDirectory).then(directories => {
       this.mainData.updateDirectories(directories);
       this.isAllSelected = true;
+      this.isIndeterminateCheckbox = false;
       this.isLoading = false;
     });
   }
@@ -149,6 +153,12 @@ export default class AppMain extends Vue {
       });
   }
 
+  checkChanged() {
+    const selectedCount = this.mainData.directories.filter(d => d.isSelected).length;
+    this.isIndeterminateCheckbox =
+      selectedCount > 0 && selectedCount < this.mainData.directories.length;
+  }
+
   @Watch("isAllSelected")
   onChangeIsAllSelected() {
     let selected = false;
@@ -158,6 +168,7 @@ export default class AppMain extends Vue {
     this.mainData.directories.forEach(d => {
       d.isSelected = selected;
     });
+    this.checkChanged();
   }
 
   get selectItemsCount() {
