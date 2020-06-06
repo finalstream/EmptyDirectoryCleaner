@@ -5,7 +5,6 @@
         prefix-icon="el-icon-folder"
         @select="selectDir()"
         v-model="mainData.searchDirectory"
-        readonly
       />
       <el-button style="margin-left:10px" @click="selectDir()">...</el-button>
     </div>
@@ -74,9 +73,13 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 // @ is an alias to /src
 import MainData from "../models/MainData";
 import electron from "electron";
+import { Dirent } from "fs";
+import IpcResponse from "../models/IpcResponse";
+import CommonVue from "../models/CommonVue";
+import { MessageLevel } from "../models/MessageLevel";
 
 @Component
-export default class AppMain extends Vue {
+export default class AppMain extends CommonVue {
   mainData: MainData;
   isLoading: boolean;
   isAllSelected: boolean;
@@ -92,69 +95,73 @@ export default class AppMain extends Vue {
     super();
     this.mainData = new MainData();
     this.isLoading = false;
-    this.isAllSelected = true;
+    this.isAllSelected = false;
     this.isVisibleConfirmDialog = false;
     this.isIndeterminateCheckbox = false;
   }
 
-  created() {
-    console.log("created");
-    //this.mainData = new Store().get("mainData");
-    this.ipcRenderer.invoke("getStore", "searchDirectory").then(res => {
-      if (res) this.mainData.searchDirectory = res;
-    });
+  async created() {
+    const res = await this.ipcRenderer.invoke("getStore", "searchDirectory");
+    if (res) this.mainData.searchDirectory = res;
   }
 
   mounted() {
     this.ipcRenderer.invoke("ready");
   }
 
-  search() {
-    console.log("search!" + this.mainData.searchDirectory);
-    //new Store().set("mainData", this.mainData.searchDir);
-    this.isLoading = true;
-    this.mainData.clearDirectories();
-    this.ipcRenderer.invoke("searchDirectory", this.mainData.searchDirectory).then(directories => {
-      this.mainData.updateDirectories(directories);
+  async search() {
+    try {
+      this.isLoading = true;
+      this.mainData.clearDirectories();
+      const response: IpcResponse<Dirent[]> = await this.ipcRenderer.invoke(
+        "searchDirectory",
+        this.mainData.searchDirectory
+      );
+      if (response.error) {
+        this.showMessage(MessageLevel.Warning, "Directory does not exist");
+        return;
+      }
+      this.mainData.updateDirectories(response.result);
       this.isAllSelected = true;
       this.isIndeterminateCheckbox = false;
+    } finally {
       this.isLoading = false;
-    });
+    }
   }
 
-  selectDir() {
-    this.ipcRenderer.invoke("openDialogDirectory").then((path: string) => {
-      if (path == undefined) return;
-      this.mainData.searchDirectory = path;
-    });
+  async selectDir() {
+    const path = await this.ipcRenderer.invoke("openDialogDirectory");
+    if (path == undefined) return;
+    this.mainData.searchDirectory = path;
   }
 
-  deleteDirectory() {
+  async deleteDirectory() {
     this.isVisibleConfirmDialog = false;
     this.isLoading = true;
 
-    this.ipcRenderer
-      .invoke(
-        "deleteDirectory",
-        this.mainData.searchDirectory,
-        this.mainData.directories.filter(d => d.isSelected).map(d => d.name)
-      )
-      .then((deleteDirectories: string[]) => {
-        // 一致したものを削除
-        this.mainData.directories = this.mainData.directories.filter(
-          d => !deleteDirectories.includes(d.name)
-        );
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const t: any = this;
-        t.$message({
-          type: "success",
-          message: "Delete completed",
-        });
-        this.isLoading = false;
-      });
+    const deleteDirectories: string[] = await this.ipcRenderer.invoke(
+      "deleteDirectory",
+      this.mainData.searchDirectory,
+      this.mainData.directories.filter(d => d.isSelected).map(d => d.name)
+    );
+    // 一致したものを削除
+    this.mainData.directories = this.mainData.directories.filter(
+      d => !deleteDirectories.includes(d.name)
+    );
+
+    if (this.mainData.directories.filter(d => d.isSelected).length == 0) {
+      this.showMessage(MessageLevel.Success, "Delete completed");
+    } else if (deleteDirectories.length == 0) {
+      // TODO: ログを出力する
+      this.showMessage(MessageLevel.Error, "Delete Error.");
+    } else {
+      this.showMessage(MessageLevel.Warning, "Delete Partially completed");
+    }
+    this.isLoading = false;
   }
 
   checkChanged() {
+    // 一部チェックの状態を設定
     const selectedCount = this.mainData.directories.filter(d => d.isSelected).length;
     this.isIndeterminateCheckbox =
       selectedCount > 0 && selectedCount < this.mainData.directories.length;

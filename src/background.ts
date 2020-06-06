@@ -10,6 +10,7 @@ import AppStore from "./models/AppStore";
 import fs, { Dirent } from "fs";
 import path from "path";
 import trash from "trash";
+import IpcResponse from "./models/IpcResponse";
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -123,7 +124,6 @@ ipcMain.handle("setStore", (event, data) => {
 });
 
 ipcMain.handle("getStore", (event, key) => {
-  console.log("invode!:" + key);
   return AppStore.instance.get(key);
 });
 
@@ -137,29 +137,42 @@ ipcMain.handle("openDialogDirectory", (event, data) => {
     });
 });
 
-ipcMain.handle("searchDirectory", (event, dirpath) => {
+ipcMain.handle("searchDirectory", async (event, dirpath) => {
+  // フォルダ存在チェック
+  try {
+    const dirstats = await fs.promises.stat(dirpath);
+    if (!dirstats.isDirectory()) throw new Error("not directory");
+  } catch (e) {
+    return new IpcResponse(e);
+  }
+
   // 検索時にパスを保存
   AppStore.instance.set("searchDirectory", dirpath);
 
-  return fs.promises.readdir(dirpath, { withFileTypes: true }).then(dirents => {
-    return dirents.filter(dirent => {
+  const dirents = await fs.promises.readdir(dirpath, { withFileTypes: true });
+  return new IpcResponse(
+    dirents.filter(dirent => {
       if (!dirent.isDirectory()) return false;
       const filepath = path.join(dirpath, dirent.name);
       const files = fs.readdirSync(filepath);
       return files.length == 0;
-    });
-  });
+    })
+  );
 });
 
-ipcMain.handle("deleteDirectory", (event, dirPath, directories: string[]) => {
-  return directories.filter(d => {
+ipcMain.handle("deleteDirectory", async (event, dirPath, directories: string[]) => {
+  const succesDirectories: string[] = [];
+
+  for (const d of directories) {
     const dirfullpath = path.join(dirPath, d);
-    return trash(dirfullpath)
+    await trash(dirfullpath)
       .then(() => {
-        return true;
+        succesDirectories.push(d);
       })
       .catch(() => {
-        return false;
+        console.error("error delete directory", dirfullpath);
       });
-  });
+  }
+
+  return succesDirectories;
 });
