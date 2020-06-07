@@ -5,6 +5,7 @@
         prefix-icon="el-icon-folder"
         @select="selectDir()"
         v-model="mainData.searchDirectory"
+        placeholder="select or input directory path"
       />
       <el-button style="margin-left:10px" @click="selectDir()">...</el-button>
     </div>
@@ -68,7 +69,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 
 // @ is an alias to /src
 import MainData from "../models/MainData";
@@ -121,7 +122,7 @@ export default class AppMain extends CommonVue {
         this.showMessage(MessageLevel.Warning, "Directory does not exist");
         return;
       }
-      this.mainData.updateDirectories(response.result);
+      this.mainData.updateDirectories(response.data);
       this.isAllSelected = true;
       this.isIndeterminateCheckbox = false;
     } finally {
@@ -153,7 +154,7 @@ export default class AppMain extends CommonVue {
       this.showMessage(MessageLevel.Success, "Delete completed");
     } else if (deleteDirectories.length == 0) {
       // TODO: ログを出力する
-      this.showMessage(MessageLevel.Error, "Delete Error.");
+      this.showMessage(MessageLevel.Error, "Delete error");
     } else {
       this.showMessage(MessageLevel.Warning, "Delete Partially completed");
     }

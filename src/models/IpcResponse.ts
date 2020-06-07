@@ -17,7 +17,7 @@ export default class IpcResponse<T> {
     } else {
       // sucsses
       this.error = false;
-      this.result = value;
+      this.data = value;
       this.errorCode = "";
       this.errorMessage = "";
     }
@@ -26,5 +26,5 @@ export default class IpcResponse<T> {
   public error: boolean;
   public errorCode: string;
   public errorMessage: string;
-  public result!: T;
+  public data!: T;
 }
