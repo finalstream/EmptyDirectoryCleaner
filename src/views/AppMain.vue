@@ -81,7 +81,7 @@ import { MessageLevel } from "../models/MessageLevel";
 import { configure, getLogger } from "log4js";
 import AppConfig from "../models/AppConfig";
 
-configure(AppConfig.LoggerConfig);
+configure(AppConfig.LoggerConfigFile);
 const logger = getLogger();
 
 @Component
