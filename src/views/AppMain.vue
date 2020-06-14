@@ -79,7 +79,7 @@ import IpcResponse from "../models/IpcResponse";
 import CommonVue from "../models/CommonVue";
 import { MessageLevel } from "../models/MessageLevel";
 import { configure, getLogger } from "log4js";
-import AppConfig from "../../app.config";
+import AppConfig from "../models/AppConfig";
 
 configure(AppConfig.LoggerConfig);
 const logger = getLogger();

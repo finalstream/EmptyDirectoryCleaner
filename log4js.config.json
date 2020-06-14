@@ -2,8 +2,12 @@
   "appenders": {
     "console": { "type": "console" },
     "debug": { "type": "file", "filename": "logs/debug.log" },
-    "result_raw": { "type": "file", "filename": "logs/app.log" },
-    "result": { "type": "logLevelFilter", "appender": "result_raw", "level": "info" }
+    "info_raw": { "type": "file", "filename": "logs/app.log" },
+    "info": { "type": "logLevelFilter", "appender": "info_raw", "level": "info" },
+    "error_raw": { "type": "file", "filename": "logs/error.log" },
+    "error": { "type": "logLevelFilter", "appender": "error_raw", "level": "error" }
   },
-  "categories": { "default": { "appenders": ["console", "result", "debug"], "level": "debug" } }
+  "categories": {
+    "default": { "appenders": ["console", "info", "debug", "error"], "level": "debug" }
+  }
 }

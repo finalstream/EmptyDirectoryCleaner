@@ -12,9 +12,9 @@ import path from "path";
 import trash from "trash";
 import IpcResponse from "./models/IpcResponse";
 import { configure, getLogger } from "log4js";
-const AppConfig = require("../app.config");
+import AppConfig from "./models/AppConfig";
 
-configure(AppConfig.LoggerConfig);
+configure(AppConfig.LoggerConfigFile);
 const logger = getLogger();
 
 const isDevelopment = process.env.NODE_ENV !== "production";
@@ -178,7 +178,7 @@ ipcMain.handle("deleteDirectory", async (event, dirPath, directories: string[]) 
         succesDirectories.push(d);
       })
       .catch(() => {
-        console.error("error delete directory", dirfullpath);
+        logger.error("error trash directory.", dirfullpath);
       });
   }
 
