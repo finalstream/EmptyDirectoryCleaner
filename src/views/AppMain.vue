@@ -78,6 +78,11 @@ import { Dirent } from "fs";
 import IpcResponse from "../models/IpcResponse";
 import CommonVue from "../models/CommonVue";
 import { MessageLevel } from "../models/MessageLevel";
+import { configure, getLogger } from "log4js";
+import AppConfig from "../../app.config";
+
+configure(AppConfig.LoggerConfig);
+const logger = getLogger();
 
 @Component
 export default class AppMain extends CommonVue {
@@ -112,6 +117,7 @@ export default class AppMain extends CommonVue {
 
   async search() {
     try {
+      logger.debug("search:", this.mainData.searchDirectory);
       this.isLoading = true;
       this.mainData.clearDirectories();
       const response: IpcResponse<Dirent[]> = await this.ipcRenderer.invoke(

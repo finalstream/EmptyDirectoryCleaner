@@ -1,0 +1,9 @@
+{
+  "appenders": {
+    "console": { "type": "console" },
+    "debug": { "type": "file", "filename": "logs/debug.log" },
+    "result_raw": { "type": "file", "filename": "logs/app.log" },
+    "result": { "type": "logLevelFilter", "appender": "result_raw", "level": "info" }
+  },
+  "categories": { "default": { "appenders": ["console", "result", "debug"], "level": "debug" } }
+}

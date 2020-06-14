@@ -14,10 +14,12 @@
   },
   "main": "background.js",
   "dependencies": {
+    "@types/log4js": "^2.3.5",
     "@types/node": "12.12.43",
     "core-js": "^3.6.5",
     "electron-store": "^5.1.1",
     "element-ui": "^2.4.5",
+    "log4js": "^6.3.0",
     "trash": "^6.1.1",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",

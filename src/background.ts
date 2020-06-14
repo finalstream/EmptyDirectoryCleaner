@@ -11,6 +11,12 @@ import fs, { Dirent } from "fs";
 import path from "path";
 import trash from "trash";
 import IpcResponse from "./models/IpcResponse";
+import { configure, getLogger } from "log4js";
+const AppConfig = require("../app.config");
+
+configure(AppConfig.LoggerConfig);
+const logger = getLogger();
+
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -35,7 +41,7 @@ async function createWindow() {
       nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
       //nodeIntegration: true,
     },
-    title: "Empty Directory Cleaner",
+    title: AppConfig.AppName,
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -67,6 +73,7 @@ app.on("window-all-closed", () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== "darwin") {
+    logger.info("exit", AppConfig.AppName);
     app.quit();
   }
 });
@@ -116,7 +123,8 @@ if (isDevelopment) {
 
 ipcMain.handle("ready", (event, data) => {
   // なんか上書きされるのでここで再設定
-  win!.setTitle("Empty Directory Cleaner");
+  win!.setTitle(AppConfig.AppName);
+  logger.info("started", AppConfig.AppName);
 });
 
 ipcMain.handle("setStore", (event, data) => {
