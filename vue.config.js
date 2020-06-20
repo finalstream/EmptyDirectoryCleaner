@@ -12,6 +12,7 @@ module.exports = {
         win: {
           icon: "./src/assets/icon.png",
         },
+        extraFiles: ["log4js.config.json"],
       },
     },
   },

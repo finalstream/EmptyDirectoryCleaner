@@ -16,8 +16,7 @@
         @click="search()"
         v-loading.fullscreen.lock="isLoading"
         :disabled="disabledSearchButton"
-        >Search</el-button
-      >
+      >Search</el-button>
     </div>
     <div>
       <el-table
@@ -44,8 +43,7 @@
       @click="isVisibleConfirmDialog = true"
       v-loading.fullscreen.lock="isLoading"
       :disabled="disabledDeleteButton"
-      >Delete Selected {{ this.selectItemsCount }} directories</el-button
-    >
+    >Delete Selected {{ this.selectItemsCount }} directories</el-button>
     <!--
     <el-row type="flex">
       <el-col><el-input prefix-icon="el-icon-date" v-model="input1"/></el-col>
