@@ -23,6 +23,13 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 // be closed automatically when the JavaScript object is garbage collected.
 let win: BrowserWindow | null;
 
+process.on("uncaughtException", function(err) {
+  logger.error("uncaughtException 予期しないエラー");
+  logger.error(err);
+  logger.error(err.stack);
+  //app.quit();
+});
+
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: "app", privileges: { secure: true, standard: true } },

@@ -115,7 +115,7 @@ export default class AppMain extends CommonVue {
 
   async search() {
     try {
-      logger.debug("search:", this.mainData.searchDirectory);
+      logger.debug("Search Directory Path:[ %s ]", this.mainData.searchDirectory);
       this.isLoading = true;
       this.mainData.clearDirectories();
       const response: IpcResponse<Dirent[]> = await this.ipcRenderer.invoke(
