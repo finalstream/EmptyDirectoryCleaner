@@ -40,8 +40,8 @@ async function createWindow() {
   win = new BrowserWindow({
     x: AppStore.instance.get("window.x"),
     y: AppStore.instance.get("window.y"),
-    width: 800,
-    height: 600,
+    width: AppStore.instance.get("window.width", 800),
+    height: AppStore.instance.get("window.height", 600),
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
