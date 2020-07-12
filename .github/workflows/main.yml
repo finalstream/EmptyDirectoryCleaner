@@ -42,10 +42,11 @@ jobs:
         with:
           name: ${{ github.event.repository.name }}-${{ matrix.os }}
           path: "artifacs/"
-      - name: Create Zip
-        uses: montudor/action-zip@v0.1.0
+      - name: Create Archive 
+        uses: thedoctor0/zip-release@master
         with:
-          args: zip -qq -r ./${{ github.event.repository.name }}-${{ matrix.os }}.zip ./dist_electron/win-unpacked
+          filename: ${{ github.event.repository.name }}-${{ matrix.os }}.zip
+          path: ./dist_electron/win-unpacked
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
