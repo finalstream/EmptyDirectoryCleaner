@@ -26,9 +26,12 @@ jobs:
       - name: yarn install
         run: |
           yarn install
+      - name: install vue/cli
+        run: |
+          yarn global add @vue/cli
       - name: Publish
         run: |
-          yarn run dist
+          vue-cli-service electron:build --windows nsis --x64
       - name: Cleanup artifacts
         run: |
           npx rimraf "dist/!(*.exe|*.deb|*.AppImage|*.dmg)"
