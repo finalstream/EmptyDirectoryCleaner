@@ -38,13 +38,14 @@ jobs:
           name: ${{ github.event.repository.name }}-${{ matrix.os }}
           path: dist_electron/win-unpacked
       - name: Download artifacs
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v2
         with:
           name: ${{ github.event.repository.name }}-${{ matrix.os }}
+          path: "artifacs/"
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ${{ github.event.repository.name }}-${{ matrix.os }}
+          files: "artifacs/**"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
