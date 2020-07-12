@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macOS-latest, windows-latest]
+        os: [windows-latest]
 
     steps:
       - name: Context
@@ -31,7 +31,7 @@ jobs:
           yarn global add @vue/cli
       - name: Publish
         run: |
-          vue-cli-service electron:build --windows nsis --x64
+          yarn run electron:build --windows nsis --x64
       - name: Cleanup artifacts
         run: |
           npx rimraf "dist/!(*.exe|*.deb|*.AppImage|*.dmg)"
