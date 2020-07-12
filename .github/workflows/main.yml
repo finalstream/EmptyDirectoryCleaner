@@ -32,18 +32,15 @@ jobs:
       - name: Publish
         run: |
           yarn run electron:build --windows nsis --x64
-      - name: Cleanup artifacts
-        run: |
-          npx rimraf "dist/!(*.exe|*.deb|*.AppImage|*.dmg)"
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
         with:
           name: ${{ matrix.os }}
-          path: dist
+          path: dist_electron/win-unpacked
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: "dist/**"
+          files: "dist_electron/win-unpacked/**"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
