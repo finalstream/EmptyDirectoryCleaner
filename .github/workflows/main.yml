@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
 
     steps:
       - name: Context
@@ -29,10 +29,20 @@ jobs:
       - name: install vue/cli
         run: |
           yarn global add @vue/cli
-      - name: Publish
+      - name: Publish for Windows
+        if: matrix.os == 'windows-latest'
         run: |
           yarn run electron:build --windows nsis zip --x64
-      - name: Upload artifacts
+      - name: Publish for MacOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          yarn run electron:build --macos dmg --x64
+      - name: Publish for Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          yarn run electron:build --linux AppImage --x64
+      - name: Upload artifacts for Windows
+        if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v1
         with:
           name: ${{ github.event.repository.name }}-${{ matrix.os }}
@@ -44,5 +54,7 @@ jobs:
           files: |
             dist_electron/*.zip
             dist_electron/*.exe
+            dist_electron/*.dmg
+            dist_electron/*.AppImage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
