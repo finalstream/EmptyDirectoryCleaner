@@ -1,6 +1,6 @@
 # EmptyDirectoryCleaner
 
-![Build Electron](https://github.com/finalstream/EmptyDirectoryCleaner/workflows/Build%20Electron/badge.svg)　[![GitHub release](https://img.shields.io/github/release/finalstream/EmptyDirectoryCleaner.svg)](https://github.com/finalstream/EmptyDirectoryCleaner/releases/latest)　![GitHub](https://img.shields.io/github/license/finalstream/EmptyDirectoryCleaner)
+![Build Electron](https://github.com/finalstream/EmptyDirectoryCleaner/workflows/Build%20Electron/badge.svg?branch=master)　[![GitHub release](https://img.shields.io/github/release/finalstream/EmptyDirectoryCleaner.svg)](https://github.com/finalstream/EmptyDirectoryCleaner/releases/latest)　![GitHub](https://img.shields.io/github/license/finalstream/EmptyDirectoryCleaner)
 
 空フォルダを検索して削除するツールです。(Powered by Electron)
 
