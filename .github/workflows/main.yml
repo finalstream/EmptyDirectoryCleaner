@@ -12,36 +12,36 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
 
     steps:
-      - name: Context
+      - name: Set Context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
       - uses: actions/checkout@v1
         with:
           fetch-depth: 1
-      - name: Use Node.js 12.x
+      - name: Set Node.js Version
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
-      - name: yarn install
+      - name: Install Yarn
         run: |
           yarn install
-      - name: install vue/cli
+      - name: Install Vue CLI
         run: |
           yarn global add @vue/cli
-      - name: Publish for Windows
+      - name: Build for Windows
         if: matrix.os == 'windows-latest'
         run: |
           yarn run electron:build --windows nsis zip --x64
-      - name: Publish for MacOS
+      - name: Build for MacOS
         if: matrix.os == 'macos-latest'
         run: |
           yarn run electron:build --macos dmg --x64
-      - name: Publish for Linux
+      - name: Build for Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
           yarn run electron:build --linux AppImage --x64
-      - name: Upload artifacts for Windows Zip
+      - name: Upload Artifacts for Windows Zip
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v2
         with:
@@ -53,13 +53,13 @@ jobs:
         with:
           name: ${{ github.event.repository.name }}-Windows Installer
           path: dist_electron/*.exe
-      - name: Upload artifacts for MacOS
+      - name: Upload Artifacts for MacOS
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.event.repository.name }}-Dmg Package
           path: dist_electron/*.dmg
-      - name: Upload artifacts for Linux
+      - name: Upload Artifacts for Linux
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v2
         with:
