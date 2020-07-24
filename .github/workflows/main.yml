@@ -45,25 +45,25 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.event.repository.name }}-${{ matrix.os }}-Zip Package
+          name: ${{ github.event.repository.name }}-Zip Package
           path: dist_electron/*.zip
       - name: Upload artifacts for Windows Installer
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.event.repository.name }}-${{ matrix.os }}-Installer
+          name: ${{ github.event.repository.name }}-Windows Installer
           path: dist_electron/*.exe
       - name: Upload artifacts for MacOS
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.event.repository.name }}-${{ matrix.os }}-Dmg Package
+          name: ${{ github.event.repository.name }}-Dmg Package
           path: dist_electron/*.dmg
       - name: Upload artifacts for Linux
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.event.repository.name }}-${{ matrix.os }}-AppImage Package
+          name: ${{ github.event.repository.name }}-AppImage Package
           path: dist_electron/*.AppImage
       - name: Release
         uses: softprops/action-gh-release@v1
